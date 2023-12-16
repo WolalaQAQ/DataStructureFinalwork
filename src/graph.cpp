@@ -21,6 +21,9 @@ void Graph::add_edge(const int v, const int w, const double weight) {
     if (v >= size() || w >= size()) {
         adj_list.resize(std::max(v, w) + 1);
     }
+    if (v == w) {
+        throw std::invalid_argument("Self loop is not allowed");
+    }
     adj_list[v].push_back(GraphNode(w, weight));
     adj_list[w].push_back(GraphNode(v, weight));
 }
