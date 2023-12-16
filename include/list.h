@@ -5,51 +5,61 @@
 #ifndef DATASTRUCTUREFINALWORK_LIST_H
 #define DATASTRUCTUREFINALWORK_LIST_H
 
-#include <exception>
 #include <stdexcept>
+#include <memory>
 
 /**
- * @brief 双向链表
+ * @brief 单向链表
  * @tparam T 链表中存储的元素类型
  */
 
 template <typename T>
 class List {
 public:
-    List() {
-        size_ = 0;
-        head = nullptr;
-        tail = nullptr;
-    }
+    List() = default;
     ~List() {
-        ListNode *node = head;
-        while (node != nullptr) {
-            ListNode *next_node = node->next;
-            delete node;
-            node = next_node;
+        while (head) {
+            auto next = std::move(head->next);
+            head = std::move(next);
         }
     }
-    explicit List(int size) {
+
+    explicit List(const size_t size) : size_(size) {
         resize(size);
     }
+
+    // 移动构造函数
+    List(List&& other) noexcept : head(std::move(other.head)), size_(other.size_) {
+        other.size_ = 0;
+    }
+
+    // 移动赋值运算符
+    List& operator=(List&& other) noexcept {
+        if (this != &other) {
+            head = std::move(other.head);
+            size_ = other.size_;
+            other.size_ = 0;
+        }
+        return *this;
+    }
+
+    // 禁用复制构造函数和复制赋值运算符
+    List(const List&) = delete;
+    List& operator=(const List&) = delete;
 
     /**
      * @brief 在链表尾部插入元素
      * @param data
      */
-    void push_back(T data) {
-        auto *new_node = new ListNode;
-        new_node->data = data;
-        if (tail == nullptr) {
-            new_node->prev = nullptr;
-            new_node->next = nullptr;
-            head = new_node;
-            tail = new_node;
+    void push_back(T&& data) {
+        if (!head) {
+            head = std::make_unique<ListNode>(std::move(data));
         } else {
-            new_node->prev = tail;
-            new_node->next = nullptr;
-            tail->next = new_node;
-            tail = new_node;
+            ListNode* node = head.get();
+            while (node->next) {
+                node = node->next.get();
+            }
+            node->next = std::make_unique<ListNode>(std::move(data));
         }
         size_++;
     }
@@ -59,15 +69,18 @@ public:
      * @throw std::out_of_range 如果链表为空
      */
     void pop_back() {
-        if (tail == nullptr) {
+        if (!head) {
             throw std::out_of_range("List is empty");
         }
-        ListNode *node = tail;
-        tail = tail->prev;
-        if (tail != nullptr) {
-            tail->next = nullptr;
+        if (!head->next) {
+            head.reset();
+        } else {
+            ListNode* node = head.get();
+            while (node->next->next) {
+                node = node->next.get();
+            }
+            node->next.reset();
         }
-        delete node;
         size_--;
     }
 
@@ -77,37 +90,19 @@ public:
      * @param data
      * @throw std::out_of_range 如果index超出范围
      */
-    void insert(int index, T data) {
+    void insert(const size_t index, T data) {
         if (index > size_) {
             throw std::out_of_range("Index out of range");
         }
-        auto *node = new ListNode;
-        node->data = data;
-        if (index == 0) {
-            node->prev = nullptr;
-            node->next = head;
-            if (head != nullptr) {
-                head->prev = node;
-            }
-            head = node;
-            if (tail == nullptr) {
-                tail = node;
-            }
-        } else {
-            ListNode *prev_node = head;
-            for (int i = 0; i < index - 1; i++) {
-                prev_node = prev_node->next;
-            }
-            node->prev = prev_node;
-            node->next = prev_node->next;
-            if (prev_node->next != nullptr) {
-                prev_node->next->prev = node;
-            }
-            prev_node->next = node;
-            if (tail == prev_node) {
-                tail = node;
-            }
+        if (index == size_) {
+            push_back(data);
+            return;
         }
+        ListNode *node = head.get();
+        for (int i = 0; i < index - 1; i++) {
+            node = node->next.get();
+        }
+        node->next = std::make_unique<ListNode>(ListNode{data, std::move(node->next)});
         size_++;
     }
 
@@ -116,27 +111,19 @@ public:
      * @param index
      * @throw std::out_of_range 如果index超出范围
      */
-    void erase(int index) {
+    void erase(const size_t index) {
         if (index >= size_) {
             throw std::out_of_range("Index out of range");
         }
-        ListNode *node = head;
-        for (int i = 0; i < index; i++) {
-            node = node->next;
+        if (index == size_ - 1) {
+            pop_back();
+            return;
         }
-        if (node->prev != nullptr) {
-            node->prev->next = node->next;
+        ListNode *node = head.get();
+        for (int i = 0; i < index - 1; i++) {
+            node = node->next.get();
         }
-        if (node->next != nullptr) {
-            node->next->prev = node->prev;
-        }
-        if (node == head) {
-            head = node->next;
-        }
-        if (node == tail) {
-            tail = node->prev;
-        }
-        delete node;
+        node->next = std::move(node->next->next);
         size_--;
     }
 
@@ -144,33 +131,16 @@ public:
      * @brief 重新设置链表大小
      * @param new_size
      */
-    void resize(int new_size) {
+    void resize(const size_t new_size) {
         if (new_size < size_) {
-            for (int i = 0; i < size_ - new_size; i++) {
+            while (size_ > new_size) {
                 pop_back();
             }
         } else if (new_size > size_) {
-            for (int i = 0; i < new_size - size_; i++) {
-                push_back(T());
+            while (size_ < new_size) {
+                push_back(T{});
             }
-        } else {
-            return;
-        }
-        size_ = new_size;
-    }
 
-    /**
-     * @brief 基于堆排序的链表排序
-     */
-    template<typename Compare>
-    void heap_sort(int start_index, int end_index, Compare compare) {
-        int size = end_index - start_index + 1;
-        for (int i = size / 2 - 1; i >= 0; i--) {
-            heapify(start_index, size, i, compare);
-        }
-        for (int i = size - 1; i >= 0; i--) {
-            std::swap((*this)[start_index], (*this)[start_index + i]);
-            heapify(start_index, i, 0, compare);
         }
     }
 
@@ -180,13 +150,13 @@ public:
      * @return T&
      * @throw std::out_of_range 如果index超出范围
      */
-    T& operator[](int index) {
+    T& operator[](const size_t index) {
         if (index >= size_) {
             throw std::out_of_range("Index out of range");
         }
-        ListNode *node = head;
+        ListNode *node = head.get();
         for (int i = 0; i < index; i++) {
-            node = node->next;
+            node = node->next.get();
         }
         return node->data;
     }
@@ -200,18 +170,10 @@ public:
     }
 
     /**
-     * @brief 获取链表尾部元素
-     * @return T&
-     */
-    T& back() {
-        return tail->data;
-    }
-
-    /**
      * @brief 获取链表大小
      * @return int
      */
-    int size() {
+    size_t size() {
         return this->size_;
     }
 
@@ -225,37 +187,15 @@ public:
 
 private:
     typedef struct ListNode {
-        T data;
-        ListNode *prev;
-        ListNode *next;
-    } ListNode;
-    int size_ = 0;
-    ListNode *head = nullptr;
-    ListNode *tail = nullptr;
+        T data = T{};
+        std::unique_ptr<ListNode> next = nullptr;
 
-    /**
-     * @brief 堆化
-     * @param start_index
-     * @param size
-     * @param index
-     * @param compare
-     */
-    template<typename Compare>
-    void heapify(int start_index, int size, int index, Compare compare) {
-        int largest = index;
-        int left = 2 * index + 1;
-        int right = 2 * index + 2;
-        if (left < size && compare((*this)[start_index + left], (*this)[start_index + largest])) {
-            largest = left;
-        }
-        if (right < size && compare((*this)[start_index + right], (*this)[start_index + largest])) {
-            largest = right;
-        }
-        if (largest != index) {
-            std::swap((*this)[start_index + index], (*this)[start_index + largest]);
-            heapify(start_index, size, largest, compare);
-        }
-    }
+        explicit ListNode(T&& data, std::unique_ptr<ListNode> next = nullptr) : data(std::move(data)), next(std::move(next)) {}
+    } ListNode;
+
+    size_t size_ = 0;
+
+    std::unique_ptr<ListNode> head = nullptr;
 
 };
 

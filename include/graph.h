@@ -20,7 +20,7 @@
 class GraphNode {
 public:
     GraphNode() = default;
-    GraphNode(int id, double weight) : id_(id), weight_(weight) {}
+    GraphNode(const int id, const double weight) : id_(id), weight_(weight) {}
     ~GraphNode() = default;
 
     int id_ = 0;
@@ -35,13 +35,26 @@ public:
     Graph() = default;
     ~Graph() = default;
 
-    explicit Graph(int size) : adj_list(size) {}
+    // 禁用复制构造函数和复制赋值运算符
+    Graph(const Graph&) = delete;
+    Graph& operator=(const Graph&) = delete;
+
+    // 移动构造函数
+    Graph(Graph&& other) noexcept : adj_list(std::move(other.adj_list)) {}
+
+    // 移动赋值运算符
+    Graph& operator=(Graph&& other) noexcept {
+        if (this != &other) {
+            adj_list = std::move(other.adj_list);
+        }
+        return *this;
+    }
 
     /**
      * @brief 从dot文件中读取图
-     * @param path dot文件路径
+     * @param file_path dot文件路径
      */
-     explicit Graph(std::filesystem::path& file_path);
+     explicit Graph(const std::filesystem::path& file_path);
 
     /**
      * @brief 添加一条边
@@ -68,11 +81,9 @@ public:
      * @brief 获取图的大小
      * @return 图的大小
      */
-    int size();
+    size_t size();
 
     List< List<GraphNode> > adj_list;
-
-private:
 
 };
 

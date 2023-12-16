@@ -3,21 +3,21 @@
 //
 #include "graph.h"
 
-Graph::Graph(std::filesystem::path& file_path) {
+Graph::Graph(const std::filesystem::path& file_path) {
     std::ifstream dot(file_path);
     std::string line;
     while (std::getline(dot, line)) {
         if (line.find("--") != std::string::npos) {
             int v = std::stoi(line.substr(0, line.find("--")));
             int w = std::stoi(line.substr(line.find("--") + 2, line.find('[') - line.find("--") - 3));
-            int weight = std::stoi(line.substr(line.find('=') + 2, line.find(']') - line.find('=') - 2));
+            double weight = std::stod(line.substr(line.find('=') + 2, line.find(']') - line.find('=') - 2));
             add_edge(v, w, weight);
         }
     }
     dot.close();
 }
 
-void Graph::add_edge(int v, int w, double weight) {
+void Graph::add_edge(const int v, const int w, const double weight) {
     if (v >= size() || w >= size()) {
         adj_list.resize(std::max(v, w) + 1);
     }
@@ -25,7 +25,7 @@ void Graph::add_edge(int v, int w, double weight) {
     adj_list[w].push_back(GraphNode(v, weight));
 }
 
-void Graph::remove_edge(int v, int w) {
+void Graph::remove_edge(const int v, const int w) {
     if (v >= size() || w >= size()) {
         throw std::out_of_range("Vertex out of range");
     }
@@ -80,6 +80,6 @@ void Graph::visualize() {
     system(command.c_str());
 }
 
-int Graph::size() {
+size_t Graph::size() {
     return adj_list.size();
 }

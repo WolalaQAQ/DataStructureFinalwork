@@ -5,7 +5,7 @@
 #ifndef DATASTRUCTUREFINALWORK_DISJOINT_SETS_H
 #define DATASTRUCTUREFINALWORK_DISJOINT_SETS_H
 
-#include "list.h"
+#include "dynamic_array.h"
 
 /**
  * @brief 并查集
@@ -30,8 +30,8 @@ public:
     void unite(int x, int y);
 
 private:
-    List<int> parent_;
-    List<int> rank_;
+    DynamicArray<int> parent_;
+    DynamicArray<int> rank_;
 
 };
 #endif//DATASTRUCTUREFINALWORK_DISJOINT_SETS_H

@@ -7,6 +7,7 @@
 
 #include "graph.h"
 #include "disjoint_sets.h"
+#include "dynamic_array.h"
 
 /**
  * @brief 图中的边
@@ -14,15 +15,15 @@
 class Edge {
 public:
     Edge() = default;
-    Edge(int v, int w, int weight) : v_(v), w_(w), weight_(weight) {}
+    Edge(const int v, const int w, const double weight) : v_(v), w_(w), weight_(weight) {}
     ~Edge() = default;
 
     int v_ = 0;
     int w_ = 0;
-    int weight_ = 0;
+    double weight_ = 0;
 };
 
-class Edges : public List<Edge> {
+class Edges : public DynamicArray<Edge> {
 public:
     Edges() = default;
 
@@ -30,7 +31,7 @@ public:
      * @brief 从图中构造边集
      * @param graph 图
      */
-    explicit Edges(Graph &graph);
+    explicit Edges(Graph& graph);
 
 };
 
@@ -39,6 +40,6 @@ public:
  * @param graph 原图
  * @return 最小生成树
  */
-Graph KruskalMST(Graph &graph);
+Graph KruskalMST(Graph& graph);
 
 #endif//DATASTRUCTUREFINALWORK_MST_H
