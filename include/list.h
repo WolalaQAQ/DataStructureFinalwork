@@ -119,6 +119,11 @@ public:
             pop_back();
             return;
         }
+        if (index == 0) {
+            head = std::move(head->next);
+            size_--;
+            return;
+        }
         ListNode *node = head.get();
         for (int i = 0; i < index - 1; i++) {
             node = node->next.get();

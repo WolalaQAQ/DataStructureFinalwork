@@ -1,0 +1,124 @@
+//
+// Created by wolala on 23-12-16.
+//
+
+#ifndef GRID_SEARCH_H
+#define GRID_SEARCH_H
+
+#include "graph.h"
+
+#include <map>
+#include <numeric>
+#include <optional>
+#include <queue>
+#include <vector>
+
+enum class PointType {
+    kEmpty = 0,
+    kObstacle,
+    kStart,
+    kGoal,
+    kPath,
+};
+
+class Point {
+public:
+    Point() = default;
+    Point(const int x, const int y) : x(x), y(y) {}
+    ~Point() = default;
+
+    bool operator==(const Point& other) const {
+        return x == other.x && y == other.y;
+    }
+
+    bool operator<(const Point& other) const {
+        return std::tie(x, y) < std::tie(other.x, other.y);
+    }
+
+    int x = 0;
+    int y = 0;
+};
+
+inline unsigned int manhattan_distance(const Point& a, const Point& b) {
+    return std::abs(a.x - b.x) + std::abs(a.y - b.y);
+}
+
+namespace std {
+    template<>
+    struct hash<Point> {
+        size_t operator()(const Point& p) const {
+            return hash<int>()(p.x) ^ hash<int>()(p.y);
+        }
+    };
+}
+
+class Path {
+public:
+    Path() = default;
+    ~Path() = default;
+
+    explicit Path(std::vector<Point>&& path_points) : path_points_(std::move(path_points)), length_(path_points_.size()) {}
+
+    size_t length() const {
+        return length_;
+    }
+
+    std::vector<Point> path_points_;
+
+private:
+    size_t length_ = 0;
+
+};
+
+class GridMap {
+public:
+    GridMap() = default;
+    ~GridMap() = default;
+
+    GridMap(int width, int height, const std::vector<Point>& obstacles = {});
+
+    void add_obstacle(const Point& point);
+
+    void add_path(const Path& path);
+
+    void add_goal(const Point& point);
+
+    void visualize();
+
+    static int get_index(const Point& point, const int width) {
+        return point.x * width + point.y;
+    }
+
+    bool is_valid(const Point& point) const {
+        return point.x >= 0 && point.x < width_ && point.y >= 0 && point.y < height_;
+    }
+
+    const std::vector<Point> directions_ = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+
+    std::map<Point, PointType> points() {
+        return points_;
+    };
+private:
+
+
+    Graph graph_;
+    std::map<Point, PointType> points_;
+
+    int width_ = 0;
+    int height_ = 0;
+};
+
+class JumpPointSearch {
+public:
+    static Path Plan(GridMap& grid_map, const Point& start, const Point& goal);
+
+private:
+    static std::vector<Point> jump(GridMap& grid_map, const Point& point, const Point& direction, const Point& goal);
+
+    static std::vector<Point> trace_path(const std::unordered_map<Point, Point>& came_from, const Point& start, const Point& end);
+
+    static bool has_forced_neighbours(GridMap& grid_map, const Point& point, const Point& direction);
+
+};
+
+#endif//GRID_SEARCH_H

@@ -3,16 +3,6 @@
 //
 #include "mst.h"
 
-Edges::Edges(Graph& graph) {
-    for (int i = 0; i < graph.adj_list.size(); i++) {
-        for (int j = 0; j < graph.adj_list[i].size(); j++) {
-            if (i < graph.adj_list[i][j].id_) {
-                push_back(Edge(i, graph.adj_list[i][j].id_, graph.adj_list[i][j].weight_));
-            }
-        }
-    }
-}
-
 Graph KruskalMST(Graph& graph) {
     // 首先将图转化为边集的表示方式
     Edges edges(graph);

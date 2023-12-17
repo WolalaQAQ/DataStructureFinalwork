@@ -86,3 +86,14 @@ void Graph::visualize() {
 size_t Graph::size() {
     return adj_list.size();
 }
+
+
+Edges::Edges(Graph& graph) {
+    for (int i = 0; i < graph.adj_list.size(); i++) {
+        for (int j = 0; j < graph.adj_list[i].size(); j++) {
+            if (i < graph.adj_list[i][j].id_) {
+                push_back(Edge(i, graph.adj_list[i][j].id_, graph.adj_list[i][j].weight_));
+            }
+        }
+    }
+}
