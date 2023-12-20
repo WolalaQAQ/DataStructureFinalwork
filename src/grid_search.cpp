@@ -50,6 +50,10 @@ void GridMap::add_goal(const Point &point) {
     points_[point] = PointType::kGoal;
 }
 
+void GridMap::add_start(const Point &point) {
+    points_[point] = PointType::kStart;
+}
+
 void GridMap::visualize() {
     std::filesystem::path dot_path = "dot";
     std::filesystem::path png_path = "image";

@@ -75,6 +75,7 @@ int main() {
     //     std::cout << "Best location: " << best_location.x << " " << best_location.y << std::endl;
     // }
     grid_map.add_goal({2,2});
+    grid_map.add_start({0, 0});
     // grid_map.add_obstacle({1,1});
     Path path = JumpPointSearch::Plan(grid_map, {0,0}, {2,2});
     if (path.length() == 0) {

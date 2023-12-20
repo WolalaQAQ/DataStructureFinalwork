@@ -12,6 +12,7 @@
 #include <optional>
 #include <queue>
 #include <vector>
+#include <unordered_map>
 
 enum class PointType {
     kEmpty = 0,
@@ -59,7 +60,7 @@ public:
 
     explicit Path(std::vector<Point>&& path_points) : path_points_(std::move(path_points)), length_(path_points_.size()) {}
 
-    size_t length() const {
+    [[nodiscard]] size_t length() const {
         return length_;
     }
 
@@ -83,13 +84,15 @@ public:
 
     void add_goal(const Point& point);
 
+    void add_start(const Point& point);
+
     void visualize();
 
     static int get_index(const Point& point, const int width) {
         return point.x * width + point.y;
     }
 
-    bool is_valid(const Point& point) const {
+    [[nodiscard]] bool is_valid(const Point& point) const {
         return point.x >= 0 && point.x < width_ && point.y >= 0 && point.y < height_;
     }
 
