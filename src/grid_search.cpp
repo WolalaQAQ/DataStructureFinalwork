@@ -103,7 +103,7 @@ void GridMap::visualize() {
     std::system(command.c_str());
 }
 
-Path AStar::plan(GridMap &grid_map, const Point &point_start, const Point &point_goal) {
+Path AStar::plan(const GridMap &grid_map, const Point &point_start, const Point &point_goal) {
     std::vector<Point> open_set;
     std::vector<Point> close_set;
     std::map<Point, Point> came_from;

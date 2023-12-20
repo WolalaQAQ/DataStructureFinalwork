@@ -2,10 +2,10 @@
 #include <random>
 
 int main() {
-    constexpr unsigned int width = 20;
-    constexpr unsigned int height = 20;
+    constexpr unsigned int width = 10;
+    constexpr unsigned int height = 10;
     constexpr unsigned int residents_num = 10;
-    constexpr unsigned int obstacles_num = 150;
+    constexpr unsigned int obstacles_num = 50;
 
     GridMap grid_map(width, height);
     // Generate random residents and obstacles
@@ -52,7 +52,7 @@ int main() {
             std::vector<Path> paths;
             unsigned int lengths = 0;
             bool stop_flag = false;
-            for (const auto& resident : residents) {
+            for (const auto &resident: residents) {
                 Path path = AStar::plan(grid_map, Point{i, j}, resident);
                 if (path.length_ == 0) {
                     stop_flag = true;
@@ -77,7 +77,7 @@ int main() {
     if (shortest_paths.empty()) {
         std::cout << "No path found" << std::endl;
     } else {
-        for (const auto& path : shortest_paths) {
+        for (const auto &path: shortest_paths) {
             grid_map.add_path(path);
         }
         grid_map.add_start(best_location);
