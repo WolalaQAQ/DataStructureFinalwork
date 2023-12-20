@@ -38,10 +38,10 @@ void GridMap::add_obstacle(const Point &point) {
 }
 
 void GridMap::add_path(const Path &path) {
-    if (path.length() < 2) {
+    if (path.length_ < 2) {
         return;
     }
-    for (int i = 0; i < path.length() - 1; ++i) {
+    for (int i = 1; i < path.length_ - 1; ++i) {
         points_[path.path_points_[i]] = PointType::kPath;
     }
 }
@@ -57,12 +57,8 @@ void GridMap::add_start(const Point &point) {
 void GridMap::visualize() {
     std::filesystem::path dot_path = "dot";
     std::filesystem::path png_path = "image";
-    if (!std::filesystem::exists(dot_path)) {
-        std::filesystem::create_directory(dot_path);
-    }
-    if (!std::filesystem::exists(png_path)) {
-        std::filesystem::create_directory(png_path);
-    }
+    std::filesystem::create_directory(dot_path);
+    std::filesystem::create_directory(png_path);
     int index = 0;
     for (auto &file: std::filesystem::directory_iterator(dot_path)) {
         index++;
@@ -82,9 +78,9 @@ void GridMap::visualize() {
                 if (pointType->second == PointType::kObstacle) {
                     dot << ", style=filled, fillcolor=gray]";
                 } else if (pointType->second == PointType::kPath) {
-                    dot << ", style=filled, fillcolor=green]";
-                } else if (pointType->second == PointType::kStart) {
                     dot << ", style=filled, fillcolor=blue]";
+                } else if (pointType->second == PointType::kStart) {
+                    dot << ", style=filled, fillcolor=green]";
                 } else if (pointType->second == PointType::kGoal) {
                     dot << ", style=filled, fillcolor=red]";
                 } else {
@@ -107,101 +103,53 @@ void GridMap::visualize() {
     std::system(command.c_str());
 }
 
-std::vector<Point> JumpPointSearch::jump(GridMap &grid_map, const Point &point, const Point &direction, const Point &goal) {
-    std::vector<Point> path;
-    Point current = point;
-    while (true) {
-        current.x += direction.x;
-        current.y += direction.y;
-        // 检查点是否超出地图范围或是否是障碍物
-        if (!grid_map.is_valid(current) || grid_map.points()[current] == PointType::kObstacle) {
-            return {};// 空路径表示失败或无法跳跃
-        }
-        path.push_back(current);// 记录路径
-        // 如果当前点是目标点，则返回路径
-        if (current == goal) {
-            return path;
-        }
-        // 检查是否存在强制邻居
-        if (has_forced_neighbours(grid_map, current, direction)) {
-            return path;// 返回到此点的路径
-        }
-    }
-}
-
-std::vector<Point> JumpPointSearch::trace_path(const std::unordered_map<Point, Point> &came_from, const Point &start, const Point &end) {
-    std::vector<Point> path;
-    Point current = start;
-
-    // 如果当前点不是目标点，则一直向前追溯
-    while (current != end) {
-        path.push_back(current);
-        if (!came_from.count(current)) {
-            return {};// 如果当前点没有父节点，则返回空路径
-        }
-        current = came_from.at(current);
-    }
-
-    std::reverse(path.begin(), path.end());
-    return path;
-}
-
-
-bool JumpPointSearch::has_forced_neighbours(GridMap &grid_map, const Point &point, const Point &direction) {
-    // 只有直线方向上才有强制邻居
-    if (direction.x != 0) {
-        return (grid_map.is_valid({point.x, point.y + 1}) && grid_map.points()[{point.x, point.y + 1}] == PointType::kObstacle && grid_map.points()[{point.x + direction.x, point.y + 1}] != PointType::kObstacle) ||
-               (grid_map.is_valid({point.x, point.y - 1}) && grid_map.points()[{point.x, point.y - 1}] == PointType::kObstacle && grid_map.points()[{point.x + direction.x, point.y - 1}] != PointType::kObstacle);
-    } else if (direction.y != 0) {
-        return (grid_map.is_valid({point.x + 1, point.y}) && grid_map.points()[{point.x + 1, point.y}] == PointType::kObstacle && grid_map.points()[{point.x + 1, point.y + direction.y}] != PointType::kObstacle) ||
-               (grid_map.is_valid({point.x - 1, point.y}) && grid_map.points()[{point.x - 1, point.y}] == PointType::kObstacle && grid_map.points()[{point.x - 1, point.y + direction.y}] != PointType::kObstacle);
-    }
-    return false;
-}
-
-
-Path JumpPointSearch::Plan(GridMap &grid_map, const Point &start, const Point &goal) {
-    struct Node {
-        Point point;
-        double f_score;
-        double g_score;
-        Point parent;
-
-        bool operator>(const Node &rhs) const {
-            return f_score > rhs.f_score;
-        }
-    };
-
-    std::priority_queue<Node, std::vector<Node>, std::greater<>> open_set;
-    open_set.push({start, 0, 0, start});
-    std::unordered_map<Point, double> g_score;
-    g_score[start] = 0;
-    std::unordered_map<Point, Point> came_from;
-
+Path AStar::plan(GridMap &grid_map, const Point &point_start, const Point &point_goal) {
+    std::vector<Point> open_set;
+    std::vector<Point> close_set;
+    std::map<Point, Point> came_from;
+    std::map<Point, double> g_score;
+    std::map<Point, double> f_score;
+    open_set.push_back(point_start);
+    g_score[point_start] = 0;
+    f_score[point_start] = g_score[point_start] + manhattan_distance(point_goal, point_start);
     while (!open_set.empty()) {
-        Node current = open_set.top();
-        open_set.pop();
-
-        if (current.point == goal) {
-            return Path(trace_path(came_from, start, goal));
-        }
-
-        for (const auto &dir: grid_map.directions_) {
-            auto next_path = jump(grid_map, current.point, dir, goal);
-            if (!next_path.empty()) {
-                Point next_point = next_path.back(); // 最后一个点是跳点
-                double tentative_g_score = g_score[current.point] + manhattan_distance(current.point, next_point);
-                if (!g_score.count(next_point) || tentative_g_score < g_score[next_point]) {
-                    g_score[next_point] = tentative_g_score;
-                    double f_score = tentative_g_score + manhattan_distance(next_point, goal);
-                    open_set.push({next_point, f_score, tentative_g_score, current.point});
-                    // 更新 came_from 为完整路径
-                    for (size_t i = 0; i < next_path.size() - 1; ++i) {
-                        came_from[next_path[i + 1]] = next_path[i];
-                    }
-                }
+        Point current = open_set[0];
+        for (const auto &point: open_set) {
+            if (f_score[point] < f_score[current]) {
+                current = point;
             }
         }
+        if (current == point_goal) {
+            Path path;
+            path.path_points_.push_back(current);
+            while (came_from.find(current) != came_from.end()) {
+                current = came_from[current];
+                path.path_points_.push_back(current);
+            }
+            std::reverse(path.path_points_.begin(), path.path_points_.end());
+            path.length_ = path.path_points_.size();
+            return path;
+        }
+        open_set.erase(std::remove(open_set.begin(), open_set.end(), current), open_set.end());
+        close_set.push_back(current);
+        for (const auto &dir: grid_map.directions_) {
+            Point neighbor = current + dir;
+            if (!grid_map.is_valid(neighbor)) {
+                continue;
+            }
+            if (std::find(close_set.begin(), close_set.end(), neighbor) != close_set.end()) {
+                continue;
+            }
+            double tentative_g_score = g_score[current] + manhattan_distance(neighbor, current);
+            if (std::find(open_set.begin(), open_set.end(), neighbor) == open_set.end()) {
+                open_set.push_back(neighbor);
+            } else if (tentative_g_score >= g_score[neighbor]) {
+                continue;
+            }
+            came_from[neighbor] = current;
+            g_score[neighbor] = tentative_g_score;
+            f_score[neighbor] = g_score[neighbor] + manhattan_distance(neighbor, current);
+        }
     }
-    return {}; // 如果找不到路径，则返回空路径
+    return {};
 }

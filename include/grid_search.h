@@ -36,6 +36,14 @@ public:
         return std::tie(x, y) < std::tie(other.x, other.y);
     }
 
+    Point operator+(const Point& other) const {
+        return Point{x + other.x, y + other.y};
+    }
+
+    Point operator-(const Point& other) const {
+        return Point{x - other.x, y - other.y};
+    }
+
     int x = 0;
     int y = 0;
 };
@@ -60,15 +68,9 @@ public:
 
     explicit Path(std::vector<Point>&& path_points) : path_points_(std::move(path_points)), length_(path_points_.size()) {}
 
-    [[nodiscard]] size_t length() const {
-        return length_;
-    }
-
     std::vector<Point> path_points_;
 
-private:
     size_t length_ = 0;
-
 };
 
 class GridMap {
@@ -111,16 +113,11 @@ private:
     int height_ = 0;
 };
 
-class JumpPointSearch {
+class AStar {
 public:
-    static Path Plan(GridMap& grid_map, const Point& start, const Point& goal);
+    static Path plan(GridMap& grid_map, const Point& point_start, const Point& point_goal);
 
 private:
-    static std::vector<Point> jump(GridMap& grid_map, const Point& point, const Point& direction, const Point& goal);
-
-    static std::vector<Point> trace_path(const std::unordered_map<Point, Point>& came_from, const Point& start, const Point& end);
-
-    static bool has_forced_neighbours(GridMap& grid_map, const Point& point, const Point& direction);
 
 };
 
