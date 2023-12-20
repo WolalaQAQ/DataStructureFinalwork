@@ -5,7 +5,7 @@ int main() {
     constexpr unsigned int width = 10;
     constexpr unsigned int height = 10;
     constexpr unsigned int residents_num = 10;
-    constexpr unsigned int obstacles_num = 50;
+    constexpr unsigned int obstacles_num = 75;
 
     GridMap grid_map(width, height);
     // Generate random residents and obstacles

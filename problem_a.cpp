@@ -11,7 +11,9 @@ int main() {
         case 1: {
             std::cout << "You choose mode 1. from dot file" << std::endl;
             // 1. 从dot文件中读取图
-            const std::filesystem::path file_path("neu_graph.dot");
+            std::filesystem::path file_path;
+            std::cout << "Please input the dot file path: " << std::endl;
+            std::cin >> file_path;
             Graph graph_from_file(file_path);
             graph_from_file.visualize();
             Graph mst_from_file = KruskalMST(graph_from_file);
