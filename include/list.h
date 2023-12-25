@@ -5,15 +5,14 @@
 #ifndef DATASTRUCTUREFINALWORK_LIST_H
 #define DATASTRUCTUREFINALWORK_LIST_H
 
-#include <stdexcept>
 #include <memory>
+#include <stdexcept>
 
 /**
  * @brief 单向链表
  * @tparam T 链表中存储的元素类型
  */
-
-template <typename T>
+template<typename T>
 class List {
 public:
     List() = default;
@@ -29,12 +28,12 @@ public:
     }
 
     // 移动构造函数
-    List(List&& other) noexcept : head(std::move(other.head)), size_(other.size_) {
+    List(List &&other) noexcept : head(std::move(other.head)), size_(other.size_) {
         other.size_ = 0;
     }
 
     // 移动赋值运算符
-    List& operator=(List&& other) noexcept {
+    List &operator=(List &&other) noexcept {
         if (this != &other) {
             head = std::move(other.head);
             size_ = other.size_;
@@ -44,18 +43,18 @@ public:
     }
 
     // 禁用复制构造函数和复制赋值运算符
-    List(const List&) = delete;
-    List& operator=(const List&) = delete;
+    List(const List &) = delete;
+    List &operator=(const List &) = delete;
 
     /**
      * @brief 在链表尾部插入元素
      * @param data
      */
-    void push_back(T&& data) {
+    void push_back(T &&data) {
         if (!head) {
             head = std::make_unique<ListNode>(std::move(data));
         } else {
-            ListNode* node = head.get();
+            ListNode *node = head.get();
             while (node->next) {
                 node = node->next.get();
             }
@@ -75,7 +74,7 @@ public:
         if (!head->next) {
             head.reset();
         } else {
-            ListNode* node = head.get();
+            ListNode *node = head.get();
             while (node->next->next) {
                 node = node->next.get();
             }
@@ -90,7 +89,7 @@ public:
      * @param data
      * @throw std::out_of_range 如果index超出范围
      */
-    void insert(const size_t index, T data) {
+    void insert(const size_t index, T &data) {
         if (index > size_) {
             throw std::out_of_range("Index out of range");
         }
@@ -145,7 +144,6 @@ public:
             while (size_ < new_size) {
                 push_back(T{});
             }
-
         }
     }
 
@@ -155,7 +153,7 @@ public:
      * @return T&
      * @throw std::out_of_range 如果index超出范围
      */
-    T& operator[](const size_t index) {
+    T &operator[](const size_t index) {
         if (index >= size_) {
             throw std::out_of_range("Index out of range");
         }
@@ -170,7 +168,7 @@ public:
      * @brief 获取链表头部元素
      * @return T&
      */
-    T& front() {
+    T &front() {
         return head->data;
     }
 

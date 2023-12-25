@@ -3,7 +3,7 @@
 //
 #include "graph.h"
 
-Graph::Graph(const std::filesystem::path& file_path) {
+Graph::Graph(const std::filesystem::path &file_path) {
     std::ifstream dot(file_path);
     std::string line;
     while (std::getline(dot, line)) {
@@ -56,7 +56,7 @@ void Graph::visualize() {
         std::filesystem::create_directory(png_path);
     }
     int index = 0;
-    for (auto &file : std::filesystem::directory_iterator(dot_path)) {
+    for (auto &file: std::filesystem::directory_iterator(dot_path)) {
         index++;
     }
     std::string dot_file = dot_path.string() + "/" + "graph_" + std::to_string(index) + ".dot";
@@ -74,12 +74,12 @@ void Graph::visualize() {
     dot.close();
     std::string command = "dot -Tpng " + dot_file + " -o " + png_file;
     system(command.c_str());
-    // 打开并显示图片，需要多平台适配
-    #ifdef _WIN32
-        command = "start " + png_file;
-    #elif __linux__
-        command = "xdg-open " + png_file;
-    #endif
+// 打开并显示图片，需要多平台适配
+#ifdef _WIN32
+    command = "start " + png_file;
+#elif __linux__
+    command = "xdg-open " + png_file;
+#endif
     system(command.c_str());
 }
 
@@ -88,7 +88,7 @@ size_t Graph::size() {
 }
 
 
-Edges::Edges(Graph& graph) {
+Edges::Edges(Graph &graph) {
     for (int i = 0; i < graph.adj_list.size(); i++) {
         for (int j = 0; j < graph.adj_list[i].size(); j++) {
             if (i < graph.adj_list[i][j].id_) {

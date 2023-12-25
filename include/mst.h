@@ -5,14 +5,14 @@
 #ifndef DATASTRUCTUREFINALWORK_MST_H
 #define DATASTRUCTUREFINALWORK_MST_H
 
-#include "graph.h"
 #include "disjoint_sets.h"
+#include "graph.h"
 
 /**
  * @brief Kruskal算法求最小生成树
  * @param graph 原图
  * @return 最小生成树
  */
-Graph KruskalMST(Graph& graph);
+Graph KruskalMST(Graph &graph);
 
 #endif//DATASTRUCTUREFINALWORK_MST_H

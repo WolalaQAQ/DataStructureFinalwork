@@ -3,23 +3,23 @@
 //
 #include "disjoint_sets.h"
 
-DisjointSets::DisjointSets(int size) : parent_(size), rank_(size) {
+DisjointSets::DisjointSets(const size_t size) : parent_(size), rank_(size) {
     for (int i = 0; i < size; i++) {
         parent_[i] = i;
         rank_[i] = 0;
     }
 }
 
-int DisjointSets::find(int x) {
+int DisjointSets::find(const int x) {
     if (parent_[x] != x) {
         parent_[x] = find(parent_[x]);
     }
     return parent_[x];
 }
 
-void DisjointSets::unite(int x, int y) {
-    int x_root = find(x);
-    int y_root = find(y);
+void DisjointSets::unite(const int x, const int y) {
+    const int x_root = find(x);
+    const int y_root = find(y);
     if (x_root == y_root) {
         return;
     }

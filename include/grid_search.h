@@ -11,8 +11,8 @@
 #include <numeric>
 #include <optional>
 #include <queue>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 /**
  * @brief 栅格地图上点的类型
@@ -22,7 +22,7 @@ enum class PointType {
     kObstacle,
     kStart,
     kGoal,
-    kPath,
+    kPath
 };
 
 /**
@@ -34,19 +34,23 @@ public:
     Point(const int x, const int y) : x(x), y(y) {}
     ~Point() = default;
 
-    bool operator==(const Point& other) const {
+    bool operator==(const Point &other) const {
         return x == other.x && y == other.y;
     }
 
-    bool operator<(const Point& other) const {
+    bool operator<(const Point &other) const {
         return std::tie(x, y) < std::tie(other.x, other.y);
     }
 
-    Point operator+(const Point& other) const {
+    bool operator>(const Point &other) const {
+        return std::tie(x, y) > std::tie(other.x, other.y);
+    }
+
+    Point operator+(const Point &other) const {
         return Point{x + other.x, y + other.y};
     }
 
-    Point operator-(const Point& other) const {
+    Point operator-(const Point &other) const {
         return Point{x - other.x, y - other.y};
     }
 
@@ -60,7 +64,7 @@ public:
  * @param b 点b
  * @return 曼哈顿距离
  */
-inline unsigned int manhattan_distance(const Point& a, const Point &b) {
+inline unsigned int manhattan_distance(const Point &a, const Point &b) {
     return std::abs(a.x - b.x) + std::abs(a.y - b.y);
 }
 
@@ -70,11 +74,11 @@ inline unsigned int manhattan_distance(const Point& a, const Point &b) {
 namespace std {
     template<>
     struct hash<Point> {
-        size_t operator()(const Point& p) const {
+        size_t operator()(const Point &p) const {
             return hash<int>()(p.x) ^ hash<int>()(p.y);
         }
     };
-}
+}// namespace std
 
 /**
  * @brief 栅格地图上的路径
@@ -84,7 +88,7 @@ public:
     Path() = default;
     ~Path() = default;
 
-    explicit Path(std::vector<Point>&& path_points) : path_points_(std::move(path_points)), length_(path_points_.size()) {}
+    explicit Path(std::vector<Point> &&path_points) : path_points_(std::move(path_points)), length_(path_points_.size()) {}
 
     std::vector<Point> path_points_;
 
@@ -105,31 +109,31 @@ public:
      * @param height 地图高度
      * @param obstacles 障碍物
      */
-    GridMap(int width, int height, const std::vector<Point>& obstacles = {});
+    GridMap(int width, int height, const std::vector<Point> &obstacles = {});
 
     /**
      * @brief 添加障碍物
      * @param point 障碍物坐标
      */
-    void add_obstacle(const Point& point);
+    void add_obstacle(const Point &point);
 
     /**
      * @brief 添加路径
      * @param path 路径
      */
-    void add_path(const Path& path);
+    void add_path(const Path &path);
 
     /**
      * @brief 添加目标点
      * @param point 目标点坐标
      */
-    void add_goal(const Point& point);
+    void add_goal(const Point &point);
 
     /**
      * @brief 添加起始点
      * @param point 起始点坐标
      */
-    void add_start(const Point& point);
+    void add_start(const Point &point);
 
     /**
      * @brief 可视化
@@ -142,7 +146,7 @@ public:
      * @param width 地图宽度
      * @return 索引
      */
-    static int get_index(const Point& point, const int width) {
+    static int get_index(const Point &point, const int width) {
         return point.x * width + point.y;
     }
 
@@ -152,7 +156,7 @@ public:
      * @param width 地图宽度
      * @return 坐标
      */
-    [[nodiscard]] bool is_valid(const Point& point) const {
+    [[nodiscard]] bool is_valid(const Point &point) const {
         return point.x >= 0 && point.x < width_ && point.y >= 0 && point.y < height_;
     }
 
@@ -162,6 +166,7 @@ public:
     std::map<Point, PointType> points() {
         return points_;
     };
+
 private:
     // 栅格地图对应的图
     Graph graph_;

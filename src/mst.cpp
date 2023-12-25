@@ -3,7 +3,7 @@
 //
 #include "mst.h"
 
-Graph KruskalMST(Graph& graph) {
+Graph KruskalMST(Graph &graph) {
     // 首先将图转化为边集的表示方式
     Edges edges(graph);
     edges.heap_sort(0, edges.size() - 1, [](const Edge &a, const Edge &b) { return a.weight_ < b.weight_; });

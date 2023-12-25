@@ -5,12 +5,12 @@
 #ifndef DATASTRUCTUREFINALWORK_GRAPH_H
 #define DATASTRUCTUREFINALWORK_GRAPH_H
 
+#include <algorithm>
 #include <exception>
 #include <filesystem>
-#include <string>
 #include <fstream>
-#include <algorithm>
 #include <iostream>
+#include <string>
 
 #include "dynamic_array.h"
 #include "list.h"
@@ -37,14 +37,14 @@ public:
     ~Graph() = default;
 
     // 禁用复制构造函数和复制赋值运算符
-    Graph(const Graph&) = delete;
-    Graph& operator=(const Graph&) = delete;
+    Graph(const Graph &) = delete;
+    Graph &operator=(const Graph &) = delete;
 
     // 移动构造函数
-    Graph(Graph&& other) noexcept : adj_list(std::move(other.adj_list)) {}
+    Graph(Graph &&other) noexcept : adj_list(std::move(other.adj_list)) {}
 
     // 移动赋值运算符
-    Graph& operator=(Graph&& other) noexcept {
+    Graph &operator=(Graph &&other) noexcept {
         if (this != &other) {
             adj_list = std::move(other.adj_list);
         }
@@ -55,7 +55,7 @@ public:
      * @brief 从dot文件中读取图
      * @param file_path dot文件路径
      */
-     explicit Graph(const std::filesystem::path& file_path);
+    explicit Graph(const std::filesystem::path &file_path);
 
     /**
      * @brief 添加一条边
@@ -84,8 +84,7 @@ public:
      */
     size_t size();
 
-    List< List<GraphNode> > adj_list;
-
+    List<List<GraphNode>> adj_list;
 };
 
 /**

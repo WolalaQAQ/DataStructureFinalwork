@@ -2,10 +2,10 @@
 #include <random>
 
 int main() {
-    constexpr unsigned int width = 10;
-    constexpr unsigned int height = 10;
+    constexpr unsigned int width = 20;
+    constexpr unsigned int height = 20;
     constexpr unsigned int residents_num = 10;
-    constexpr unsigned int obstacles_num = 75;
+    constexpr unsigned int obstacles_num = 100;
 
     GridMap grid_map(width, height);
     // Generate random residents and obstacles

@@ -57,7 +57,7 @@ int main() {
                     v_random = vertices_dis(gen);
                     w_random = vertices_dis(gen);
                 } while (v_random == w_random);
-                double weight = weight_dis(gen);
+                const double weight = weight_dis(gen);
 
                 graph_from_random.add_edge(v_random, w_random, weight);
             }

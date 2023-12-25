@@ -13,7 +13,7 @@
 class DisjointSets {
 public:
     DisjointSets() = default;
-    explicit DisjointSets(int size);
+    explicit DisjointSets(size_t size);
 
     /**
      * @brief 查找元素所在集合的代表元素

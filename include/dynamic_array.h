@@ -5,13 +5,14 @@
 #ifndef DYNAMIC_ARRAY_H
 #define DYNAMIC_ARRAY_H
 
-#include <stdexcept>
 #include <memory>
+#include <stdexcept>
+
 /**
  * @brief 动态数组
  * @tparam T 数组中存储的元素类型
  */
-template <typename T>
+template<typename T>
 class DynamicArray {
 public:
     DynamicArray() = default;
@@ -20,17 +21,17 @@ public:
     explicit DynamicArray(const size_t size) : data_(std::make_unique<T[]>(size)), size_(size), capacity_(size * 2) {}
 
     // 禁止复制
-    DynamicArray(const DynamicArray&) = delete;
-    DynamicArray& operator=(const DynamicArray&) = delete;
+    DynamicArray(const DynamicArray &) = delete;
+    DynamicArray &operator=(const DynamicArray &) = delete;
 
     // 实现移动构造函数和移动赋值运算符
-    DynamicArray(DynamicArray&& other) noexcept
+    DynamicArray(DynamicArray &&other) noexcept
         : data_(std::move(other.data_)), size_(other.size_), capacity_(other.capacity_) {
         other.size_ = 0;
         other.capacity_ = 0;
     }
 
-    DynamicArray& operator=(DynamicArray&& other) noexcept {
+    DynamicArray &operator=(DynamicArray &&other) noexcept {
         if (this != &other) {
             data_ = std::move(other.data_);
             size_ = other.size_;
@@ -56,7 +57,7 @@ public:
         capacity_ = new_size;
     }
 
-    void push_back(const T data) {
+    void push_back(const T &data) {
         if (size_ == 0) {
             resize(1);
         } else if (size_ == capacity_) {
@@ -75,7 +76,7 @@ public:
         }
     }
 
-    void insert(const size_t index, const T data) {
+    void insert(const size_t index, const T &data) {
         if (index > size_) {
             throw std::out_of_range("Index out of range");
         }
@@ -102,14 +103,14 @@ public:
         }
     }
 
-    T& operator[](const size_t index) {
+    T &operator[](const size_t index) {
         if (index >= size_) {
             throw std::out_of_range("Index out of range");
         }
         return data_[index];
     }
 
-    template <typename Compare>
+    template<typename Compare>
     void heap_sort(const size_t start_index, const size_t end_index, Compare compare) {
         if (start_index >= end_index || start_index >= size_ || end_index > size_ || size_ <= 1) {
             return;
@@ -137,7 +138,7 @@ private:
     size_t size_ = 0;
     size_t capacity_ = 0;
 
-    template <typename Compare>
+    template<typename Compare>
     void sift_down(const size_t start, const size_t end, Compare compare) {
         size_t root = start;
         while ((root * 2 + 1) < end) {
