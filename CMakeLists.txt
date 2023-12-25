@@ -20,9 +20,6 @@ set_target_properties(problem_a PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/problem_a
         )
 
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/example/neu_graph.dot
-        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/problem_a)
-
 add_executable(problem_b
         problem_b.cpp
         src/graph.cpp
@@ -31,9 +28,6 @@ add_executable(problem_b
 set_target_properties(problem_b PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/problem_b
         )
-
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/example/neu_graph.dot
-        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/problem_a)
 
 add_custom_target(
         BUILD_ALL
