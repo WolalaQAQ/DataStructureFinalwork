@@ -89,19 +89,19 @@ public:
      * @param data
      * @throw std::out_of_range 如果index超出范围
      */
-    void insert(const size_t index, T &data) {
+    void insert(const size_t index, T data) {
         if (index > size_) {
             throw std::out_of_range("Index out of range");
         }
         if (index == size_) {
-            push_back(data);
+            push_back(std::move(data));
             return;
         }
         ListNode *node = head.get();
         for (int i = 0; i < index - 1; i++) {
             node = node->next.get();
         }
-        node->next = std::make_unique<ListNode>(ListNode{data, std::move(node->next)});
+        node->next = std::make_unique<ListNode>(ListNode{std::move(data), std::move(node->next)});
         size_++;
     }
 

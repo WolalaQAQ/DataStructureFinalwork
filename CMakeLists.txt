@@ -33,3 +33,22 @@ add_custom_target(
         BUILD_ALL
         DEPENDS problem_a problem_b
 )
+
+add_executable(list_test
+        list_test.cpp
+)
+
+add_test(
+        NAME list_test
+        COMMAND list_test
+)
+
+add_executable(array_test
+        array_test.cpp
+        src/disjoint_sets.cpp
+)
+
+add_test(
+        NAME array_test
+        COMMAND array_test
+)
